@@ -5,11 +5,13 @@ plugins {
 
 }
 
-group = 'org.Defesasoft'
-version = '1.0-SNAPSHOT'
+allprojects {
+    group = 'org.Defesasoft'
+    version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
