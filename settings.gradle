@@ -1,0 +1,2 @@
+rootProject.name = 'micbank'
+include 'api-gateway'
