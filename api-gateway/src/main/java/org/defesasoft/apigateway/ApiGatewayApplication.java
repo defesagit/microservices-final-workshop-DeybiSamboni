@@ -1,4 +1,4 @@
-package org.Defesasoft.apigateway;
+package org.defesasoft.apigateway;
 
 
 import org.springframework.boot.SpringApplication;
