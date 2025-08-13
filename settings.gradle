@@ -1,2 +1,3 @@
 rootProject.name = 'micbank'
 include 'api-gateway'
+include 'bank-service'
