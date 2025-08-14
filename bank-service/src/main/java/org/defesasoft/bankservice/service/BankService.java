@@ -15,9 +15,24 @@ public class BankService {
 
     public Flux<Bank> getAll(){ return repository.findAll(); }
 
-    public Mono<Bank> getById(Long BankId){
+    public Mono<Bank> getById(Long bankId){
         return repository
-                .findById(BankId)
+                .findById(bankId)
                 .switchIfEmpty( Mono.error(new RuntimeException("Bank not found")));
     }
+
+    /*public Mono<Bank> createBank(Bank bank) {
+        return repository.save(bank)
+                .switchIfEmpty(Mono.error(new RuntimeException("Failed to create bank")));
+    }*/
+
+    public Mono<Bank> createBank(Bank bank) {
+        return repository.findByName(bank.getName())
+                .flatMap(existingBank -> Mono.<Bank>error(new IllegalArgumentException("Bank with name '" + bank.getName() + "' already exists")))
+                .switchIfEmpty(repository.save(bank));
+    }
+
+
+
+
 }

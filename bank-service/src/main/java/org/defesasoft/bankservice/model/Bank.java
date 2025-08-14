@@ -9,13 +9,15 @@ public class Bank {
     @Id
     private Long id;
     private String name;
-
-    public Bank(String name, Long id) {
-        this.name = name;
-        this.id = id;
-    }
+    private String country;
 
     public Bank() {
+    }
+
+    public Bank(Long id, String name, String country) {
+        this.id = id;
+        this.name = name;
+        this.country = country;
     }
 
     public Long getId() {
@@ -32,5 +34,13 @@ public class Bank {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }
