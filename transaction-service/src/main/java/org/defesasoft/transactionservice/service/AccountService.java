@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 @Service
 public class AccountService {
     private final WebClient.Builder webClientBuilder;
@@ -31,6 +34,21 @@ public class AccountService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         clientResponse -> Mono.error(new RuntimeException("Account service error")))
                 .bodyToMono(GetAccountDTO.class);
+    }
+
+    public Mono<Void> updateAccountBalance(Long accountNumber, BigDecimal newBalance) {
+        return webClientBuilder
+                .build()
+                .patch()
+                .uri(accountServiceUrl + "/" + accountNumber + "/balance")
+                .bodyValue(Map.of("balance", newBalance))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse -> Mono.error(new RuntimeException("Error updating balance")))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse -> Mono.error(new RuntimeException("Account service error")))
+                .toBodilessEntity()
+                .then();
     }
 
 }
