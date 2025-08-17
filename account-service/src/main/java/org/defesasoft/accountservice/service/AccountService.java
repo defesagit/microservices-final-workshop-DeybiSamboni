@@ -13,9 +13,11 @@ import java.time.LocalDateTime;
 @Service
 public class AccountService {
     private final IAccountRepository accountRepository;
+    private final BankService bankService;
 
-    public AccountService(IAccountRepository repository) {
+    public AccountService(IAccountRepository repository, BankService bankServicerepo) {
         this.accountRepository = repository;
+        this.bankService = bankServicerepo;
     }
 
     public Flux<Account> getAll() {
@@ -32,12 +34,14 @@ public class AccountService {
         return accountRepository.existsByAccountNumber(account.getAccountNumber())
                 .flatMap(exists -> {
                     if (exists) {
-                        return Mono.error(
-                                new AccountAlreadyExistsException(account.getAccountNumber())
-                        );
+                        return Mono.error(new AccountAlreadyExistsException(account.getAccountNumber()));
                     }
-                    account.setCreatedAt(LocalDateTime.now());
-                    return accountRepository.save(account);
+                    return bankService.getBank(account.getBankId())
+                            .switchIfEmpty(Mono.error(new RuntimeException("Bank does not exist")))
+                            .then(Mono.defer(() -> {
+                                account.setCreatedAt(LocalDateTime.now());
+                                return accountRepository.save(account);
+                            }));
                 });
     }
 }
