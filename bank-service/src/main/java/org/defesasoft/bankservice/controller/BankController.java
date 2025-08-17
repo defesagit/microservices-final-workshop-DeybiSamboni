@@ -27,7 +27,7 @@ public class BankController {
 
     @PostMapping
     public Mono<Bank> createBank(@RequestBody Bank bank){
-        if (bank.getId() != null) {
+        if (bank.getBankId() != null) {
             return Mono.error(new IllegalArgumentException("Bank ID should not be provided for creation"));
         }
         if (bank.getName() == null || bank.getName().isEmpty()) {

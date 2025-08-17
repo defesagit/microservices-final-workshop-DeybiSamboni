@@ -12,19 +12,18 @@ public class Account {
 
     @Id
     private Long id;
-    private String account_number;
+    private String accountNumber;
     private String holder;
-    private String bankCode;
+    private Integer bankId;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Account() {
     }
-
-    public Account(Long id, String number, String holder, String bankCode, LocalDateTime createdAt) {
+    public Account(Long id, String accountNumber, String holder, Integer bankId, LocalDateTime createdAt) {
         this.id = id;
-        this.account_number = number;
+        this.accountNumber = accountNumber;
         this.holder = holder;
-        this.bankCode = bankCode;
+        this.bankId = bankId;
         this.createdAt = createdAt;
     }
 
@@ -36,12 +35,12 @@ public class Account {
         this.id = id;
     }
 
-    public String getAccount_number() {
-        return account_number;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setAccount_number(String account_number) {
-        this.account_number = account_number;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String getHolder() {
@@ -52,12 +51,12 @@ public class Account {
         this.holder = holder;
     }
 
-    public String getBankCode() {
-        return bankCode;
+    public Integer getBankId() {
+        return bankId;
     }
 
-    public void setBankCode(String bankCode) {
-        this.bankCode = bankCode;
+    public void setBankId(Integer bankId) {
+        this.bankId = bankId;
     }
 
     public LocalDateTime getCreatedAt() {

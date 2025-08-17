@@ -1,31 +1,32 @@
-package org.defesasoft.bankservice.model;
+package org.defesasoft.accountservice.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("banks")
 public class Bank {
-
     @Id
-    private Long bankId;
+    @Column("bankid")
+    private Long id;
     private String name;
     private String country;
 
     public Bank() {
     }
 
-    public Bank(Long bankId, String name, String country) {
-        this.bankId = bankId;
+    public Bank(Long id, String name, String country) {
+        this.id = id;
         this.name = name;
         this.country = country;
     }
 
-    public Long getBankId() {
-        return bankId;
+    public Long getId() {
+        return id;
     }
 
-    public void setBankId(Long bankId) {
-        this.bankId = bankId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

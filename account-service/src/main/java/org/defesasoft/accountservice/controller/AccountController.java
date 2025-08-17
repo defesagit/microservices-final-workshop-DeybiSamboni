@@ -1,8 +1,11 @@
 package org.defesasoft.accountservice.controller;
 
+import org.defesasoft.accountservice.exception.AccountAlreadyExistsException;
 import org.defesasoft.accountservice.model.Account;
 import org.defesasoft.accountservice.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,9 +30,16 @@ public class AccountController {
         return accountService.getById(id);
     }
 
-    @PostMapping
+    /*@PostMapping
     public Mono<Account> createAccount(@RequestBody Account account) {
-
         return accountService.create(account);
+    }*/
+    @PostMapping
+    public Mono<ResponseEntity<Account>> create(@RequestBody Account account) {
+        return accountService.create(account)
+                .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved));
     }
+
+
+
 }

@@ -1,12 +1,18 @@
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     account_number VARCHAR(50) NOT NULL UNIQUE,
     holder VARCHAR(100) NOT NULL,
-    bank_code VARCHAR(20) NOT NULL,
+    bank_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO accounts (account_number, holder, bank_code, created_at) VALUES
-('1001', 'Juan Pérez', 'BANCO01', CURRENT_TIMESTAMP),
-('1002', 'Ana Gómez', 'BANCO02', CURRENT_TIMESTAMP),
-('1003', 'Carlos Ruiz', 'BANCO03', CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS banks (
+    bankId BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    country VARCHAR(100) NOT NULL
+);
+
+INSERT INTO accounts (account_number, holder, bank_id, created_at) VALUES
+('1001', 'Juan Pérez', 1, CURRENT_TIMESTAMP),
+('1002', 'Ana Gómez', 2, CURRENT_TIMESTAMP),
+('1003', 'Carlos Ruiz', 3, CURRENT_TIMESTAMP);
