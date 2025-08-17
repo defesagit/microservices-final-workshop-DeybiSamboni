@@ -1,5 +1,6 @@
 package org.defesasoft.accountservice.controller;
 
+import org.defesasoft.accountservice.dto.UpdateBalanceDTO;
 import org.defesasoft.accountservice.model.Account;
 import org.defesasoft.accountservice.service.AccountService;
 import org.springframework.http.HttpStatus;
@@ -7,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1/account")
@@ -33,13 +36,19 @@ public class AccountController {
         return accountService.getByAccountNumber(accountNumber);
     }
 
-
     @PostMapping
     public Mono<ResponseEntity<Account>> create(@RequestBody Account account) {
         return accountService.create(account)
                 .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved));
     }
 
+    @PatchMapping("/accountable/{accountNumber}/balance")
+    public Mono<ResponseEntity<Account>> updateBalanceByAccountNumber(
+            @PathVariable Long accountNumber,
+            @RequestBody UpdateBalanceDTO updateBalanceDTO) {
+        return accountService.updateBalanceByAccountNumber(accountNumber, updateBalanceDTO.getBalance())
+                .map(updated -> ResponseEntity.ok(updated));
+    }
 
 
 }

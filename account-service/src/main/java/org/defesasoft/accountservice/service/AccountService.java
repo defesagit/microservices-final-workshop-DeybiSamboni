@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -50,4 +51,14 @@ public class AccountService {
                             }));
                 });
     }
+
+    public Mono<Account> updateBalanceByAccountNumber(Long accountNumber, BigDecimal newBalance) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
+                .flatMap(account -> {
+                    account.setBalance(newBalance);
+                    return accountRepository.save(account);
+                });
+    }
+
 }

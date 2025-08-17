@@ -3,23 +3,23 @@ package org.defesasoft.transactionservice.dto;
 import java.math.BigDecimal;
 
 public class TransferRequestDTO {
-    private String fromAccount;
-    private String toAccount;
+    private Long fromAccount;
+    private Long toAccount;
     private BigDecimal amount;
 
     public TransferRequestDTO() {}
 
-    public TransferRequestDTO(String fromAccount, String toAccount, BigDecimal amount) {
+    public TransferRequestDTO(Long fromAccount, Long toAccount, BigDecimal amount) {
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
     }
 
-    public String getFromAccount() { return fromAccount; }
-    public void setFromAccount(String fromAccount) { this.fromAccount = fromAccount; }
+    public Long getFromAccount() { return fromAccount; }
+    public void setFromAccount(Long fromAccount) { this.fromAccount = fromAccount; }
 
-    public String getToAccount() { return toAccount; }
-    public void setToAccount(String toAccount) { this.toAccount = toAccount; }
+    public Long getToAccount() { return toAccount; }
+    public void setToAccount(Long toAccount) { this.toAccount = toAccount; }
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }

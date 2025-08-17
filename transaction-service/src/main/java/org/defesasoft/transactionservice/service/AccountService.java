@@ -18,11 +18,11 @@ public class AccountService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public Mono<GetAccountDTO> getAccount (Long accountId) {
+    public Mono<GetAccountDTO> getAccount (Long accountNumber) {
         return webClientBuilder
                 .build()
                 .get()
-                .uri(accountServiceUrl + "/" + accountId)
+                .uri(accountServiceUrl + "/" + accountNumber)
                 .retrieve()
                 .onStatus(status -> status.value() == 404,
                         clientResponse -> Mono.error(new RuntimeException("Account does not exist")))

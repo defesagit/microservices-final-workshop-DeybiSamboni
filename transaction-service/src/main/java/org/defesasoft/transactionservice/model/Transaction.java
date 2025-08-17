@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 public class Transaction {
     @Id
     private Long transactionId;
-    private String fromAccount;
-    private String toAccount;
+    private Long fromAccount;
+    private Long toAccount;
     private String type; // "DEPOSIT" o "WITHDRAWAL"
     private BigDecimal amount;
     private LocalDateTime timestamp;
@@ -19,7 +19,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long transactionId, String fromAccount, String toAccount, String type, BigDecimal amount, LocalDateTime timestamp) {
+    public Transaction(Long transactionId, Long fromAccount, Long toAccount, String type, BigDecimal amount, LocalDateTime timestamp) {
         this.transactionId = transactionId;
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
@@ -36,19 +36,19 @@ public class Transaction {
         this.transactionId = transactionId;
     }
 
-    public String getFromAccount() {
+    public Long getFromAccount() {
         return fromAccount;
     }
 
-    public void setFromAccount(String fromAccount) {
+    public void setFromAccount(Long fromAccount) {
         this.fromAccount = fromAccount;
     }
 
-    public String getToAccount() {
+    public Long getToAccount() {
         return toAccount;
     }
 
-    public void setToAccount(String toAccount) {
+    public void setToAccount(Long toAccount) {
         this.toAccount = toAccount;
     }
 

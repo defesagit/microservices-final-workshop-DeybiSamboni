@@ -32,18 +32,18 @@ public class TransactionService {
         return repository.findById(transactionId);
     }
 
-    public Mono<Transaction> deposit(String toAccount, BigDecimal amount) {
+    public Mono<Transaction> deposit(Long toAccount, BigDecimal amount) {
         Transaction deposit = new Transaction(null, null, toAccount, "DEPOSIT", amount, LocalDateTime.now());
         return repository.save(deposit);
     }
 
-    public Mono<Transaction> withdraw(String fromAccount, BigDecimal amount) {
+    public Mono<Transaction> withdraw(Long fromAccount, BigDecimal amount) {
         // Aquí deberías validar fondos suficientes antes de continuar
         Transaction withdrawal = new Transaction(null, fromAccount, null, "WITHDRAWAL", amount, LocalDateTime.now());
         return repository.save(withdrawal);
     }
 
-    public Mono<Void> processTransfer(String fromAccount, String toAccount, BigDecimal amount, boolean sameBank) {
+    public Mono<Void> processTransfer(Long fromAccount, Long toAccount, BigDecimal amount, boolean sameBank) {
         // Validar fondos suficientes (simulado)
         return withdraw(fromAccount, amount)
             .flatMap(withdrawal -> {
@@ -56,9 +56,7 @@ public class TransactionService {
             });
     }
 
-    // En TransactionService.java
-
-    public Mono<ResponseEntity<TransferResponseDTO>> validateAndProcessTransfer(TransferRequestDTO payload) {
+    /*public Mono<ResponseEntity<TransferResponseDTO>> validateAndProcessTransfer(TransferRequestDTO payload) {
         Long fromAccountId = Long.valueOf(payload.getFromAccount());
         Long toAccountId   = Long.valueOf(payload.getToAccount());
         BigDecimal amount  = payload.getAmount();
@@ -96,6 +94,61 @@ public class TransactionService {
                             TransferResponseDTO errorResponse = new TransferResponseDTO(
                                     "FAILURE",
                                     "Error en transferencia: " + e.getMessage(),
+                                    null
+                            );
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+                        })
+                );
+    }*/
+
+
+    public Mono<ResponseEntity<TransferResponseDTO>> validateAndProcessTransfer(TransferRequestDTO payload) {
+        Long fromAccountNumber = Long.valueOf(payload.getFromAccount());
+        Long toAccountNumber = Long.valueOf(payload.getToAccount());
+        BigDecimal amount = payload.getAmount();
+
+        Mono<GetAccountDTO> fromAccountMono = accountService.getAccount(fromAccountNumber);
+        Mono<GetAccountDTO> toAccountMono = accountService.getAccount(toAccountNumber);
+
+        return Mono.zip(fromAccountMono, toAccountMono)
+                .flatMap(tuple -> {
+                    GetAccountDTO fromAcc = tuple.getT1();
+                    GetAccountDTO toAcc = tuple.getT2();
+                    boolean sameBank = fromAcc.getBankId().equals(toAcc.getBankId());
+
+                    if (fromAcc.getBalance().compareTo(amount) < 0) {
+                        TransferResponseDTO errorResponse = new TransferResponseDTO(
+                                "FAILURE",
+                                "Insufficient funds",
+                                null
+                        );
+                        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse));
+                    }
+
+                    return processTransfer(payload.getFromAccount(), payload.getToAccount(), amount, sameBank)
+                            .then(Mono.defer(() -> {
+                                Transaction transaction = new Transaction();
+                                transaction.setFromAccount(payload.getFromAccount());
+                                transaction.setToAccount(payload.getToAccount());
+                                transaction.setAmount(amount);
+                                transaction.setType("TRANSFER");
+                                transaction.setTimestamp(LocalDateTime.now());
+                                return saveTransaction(transaction, sameBank);
+                            }))
+                            .map(saved -> {
+                                TransferResponseDTO response = new TransferResponseDTO(
+                                        "SUCCESS",
+                                        "Transfer completed successfully",
+                                        saved
+                                );
+                                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+                            });
+                })
+                .onErrorResume(e ->
+                        Mono.fromSupplier(() -> {
+                            TransferResponseDTO errorResponse = new TransferResponseDTO(
+                                    "FAILURE",
+                                    "Transfer error: " + e.getMessage(),
                                     null
                             );
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
