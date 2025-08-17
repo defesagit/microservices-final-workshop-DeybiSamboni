@@ -4,4 +4,5 @@ dependencies {
   implementation 'com.h2database:h2'
   runtimeOnly 'io.r2dbc:r2dbc-h2'
   implementation 'com.google.protobuf:protobuf-java'
+
 }

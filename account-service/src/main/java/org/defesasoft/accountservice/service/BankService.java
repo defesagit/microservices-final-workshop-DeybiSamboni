@@ -18,17 +18,6 @@ public class BankService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    /*public Mono<GetBankDTO> getBank(Long bankId) {
-        return webClientBuilder
-                .build()
-                .get()
-                .uri(bankServiceUrl + "/" + bankId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        clientResponse -> Mono.error(new RuntimeException("Bank not Found")))
-                .bodyToMono(GetBankDTO.class);
-    }*/
-
     public Mono<GetBankDTO> getBank(Long bankId) {
         return webClientBuilder
                 .build()
@@ -38,7 +27,7 @@ public class BankService {
                 .onStatus(status -> status.value() == 404,
                         clientResponse -> Mono.error(new RuntimeException("Bank does not exist")))
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        clientResponse -> Mono.error(new RuntimeException("Error en la petición al bank-service")))
+                        clientResponse -> Mono.error(new RuntimeException("Error in request bank-service")))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         clientResponse -> Mono.error(new RuntimeException("Bank service error")))
                 .bodyToMono(GetBankDTO.class);

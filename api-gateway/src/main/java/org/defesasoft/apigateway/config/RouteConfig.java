@@ -16,11 +16,16 @@ public class RouteConfig {
     @Value("${accounts-service.id}") private String accountServiceId;
     @Value("${accounts-service.path}") private String accountServicePath;
 
+    @Value("${transactions-service.url}") private String transactionServiceUrl;
+    @Value("${transactions-service.id}") private String transactionServiceId;
+    @Value("${transactions-service.path}") private String transactionServicePath;
+
     @Bean
     public RouteLocator createRouteLocate(RouteLocatorBuilder builder){
         return builder.routes()
                 .route(bankServiceId, route -> route.path(bankServicePath).uri(bankServiceUrl))
                 .route(accountServiceId, route -> route.path(accountServicePath).uri(accountServiceUrl))
+                .route(transactionServiceId, route -> route.path(transactionServicePath).uri(transactionServiceUrl))
                 .build();
     }
 }
