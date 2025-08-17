@@ -24,16 +24,22 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Mono<Account> getById(Long accountId) {
+    public Mono<Account> getById (Long accountId) {
         return accountRepository
                 .findById(accountId)
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")));
+    }
+
+    public Mono<Account> getByAccountNumber (Long accountNumber) {
+        return accountRepository
+                .findByAccountNumber(accountNumber)
                 .switchIfEmpty(Mono.error(new RuntimeException("Account not found")));
     }
 
     public Mono<Account> create(Account account) {
         return accountRepository.existsByAccountNumber(account.getAccountNumber())
                 .flatMap(exists -> {
-                    if (exists) {
+                    if (Boolean.TRUE.equals(exists)) {
                         return Mono.error(new AccountAlreadyExistsException(account.getAccountNumber()));
                     }
                     return bankService.getBank(account.getBankId())

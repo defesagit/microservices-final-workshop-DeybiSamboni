@@ -7,3 +7,10 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount DECIMAL(19,2),
     timestamp TIMESTAMP
 );
+
+INSERT INTO transactions (from_account, to_account, type, amount, timestamp) VALUES
+('', '1001', 'DEPOSIT', 1000.00, '2024-06-01 10:30:00'),--DEPOSITO
+('', '1002', 'DEPOSIT', 1000.00, '2024-06-01 10:30:00'),--DEPOSITO
+('', '1003', 'DEPOSIT', 1000.00, '2024-06-01 10:30:00'),--DEPOSITO
+('', '1001', 'WITHDRAWAL', 500.00, '2024-06-02 14:15:00'),--RETIRO
+('1001', '1002', 'DEPOSIT', 250.50, '2024-06-03 09:00:00');--DEPOSITO ENTRE CUENTAS

@@ -12,7 +12,7 @@ public class Account {
     @Column("account_id")
     private Long id;
     @Column("account_number")
-    private String accountNumber;
+    private Long accountNumber;
     @Column("holder")
     private String holder;
     @Column("bank_id")
@@ -23,7 +23,7 @@ public class Account {
     public Account() {
     }
 
-    public Account(Long id, String accountNumber, String holder, Long bankId, LocalDateTime createdAt) {
+    public Account(Long id, Long accountNumber, String holder, Long bankId, LocalDateTime createdAt) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.holder = holder;
@@ -39,11 +39,11 @@ public class Account {
         this.id = id;
     }
 
-    public String getAccountNumber() {
+    public Long getAccountNumber() {
         return accountNumber;
     }
 
-    public void setAccountNumber(String accountNumber) {
+    public void setAccountNumber(Long accountNumber) {
         this.accountNumber = accountNumber;
     }
 

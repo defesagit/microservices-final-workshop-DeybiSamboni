@@ -23,15 +23,17 @@ public class AccountController {
         return accountService.getAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public Mono<Account> getAccountById(@PathVariable Long id) {
         return accountService.getById(id);
     }
 
-    /*@PostMapping
-    public Mono<Account> createAccount(@RequestBody Account account) {
-        return accountService.create(account);
-    }*/
+    @GetMapping("/accountable/{accountNumber}")
+    public Mono<Account> getAccountByNumberAccount(@PathVariable Long accountNumber) {
+        return accountService.getByAccountNumber(accountNumber);
+    }
+
+
     @PostMapping
     public Mono<ResponseEntity<Account>> create(@RequestBody Account account) {
         return accountService.create(account)

@@ -5,6 +5,6 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
 public interface IAccountRepository extends ReactiveCrudRepository<Account, Long> {
-    Mono<Boolean> existsByAccountNumber(String accountNumber);
-    Mono<Account> findByAccountNumber(String accountNumber);
+    Mono<Boolean> existsByAccountNumber(Long accountNumber);
+    Mono<Account> findByAccountNumber(Long accountNumber);
 }

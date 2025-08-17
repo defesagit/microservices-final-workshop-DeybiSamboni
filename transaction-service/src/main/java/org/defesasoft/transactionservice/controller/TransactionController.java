@@ -1,16 +1,21 @@
 package org.defesasoft.transactionservice.controller;
 
 import org.defesasoft.transactionservice.dto.GetAccountDTO;
+import org.defesasoft.transactionservice.dto.TransferRequestDTO;
+import org.defesasoft.transactionservice.dto.TransferResponseDTO;
 import org.defesasoft.transactionservice.model.Transaction;
+import org.defesasoft.transactionservice.service.AccountService;
 import org.defesasoft.transactionservice.service.TransactionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -18,11 +23,11 @@ import java.util.Map;
 public class TransactionController {
 
     private final TransactionService service;
-    private final WebClient webClient;
+    private final AccountService accountService;
 
-    public TransactionController(TransactionService service, @Value("${account.service.url}") String accountServiceUrl) {
+    public TransactionController(TransactionService service, AccountService accountService) {
         this.service = service;
-        this.webClient = WebClient.builder().baseUrl(accountServiceUrl).build();
+        this.accountService = accountService;
     }
 
     @GetMapping
@@ -36,32 +41,12 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> transfer(@RequestBody Map<String, Object> payload) {
-        String fromAccount = (String) payload.get("fromAccount");
-        String toAccount = (String) payload.get("toAccount");
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-
-        // Consultar cuentas origen y destino en account-service
-        Mono<GetAccountDTO> fromAccountMono = webClient.get()
-                .uri("/accounts/number/{number}", fromAccount)
-                .retrieve()
-                .bodyToMono(GetAccountDTO.class);
-
-        Mono<GetAccountDTO> toAccountMono = webClient.get()
-                .uri("/accounts/number/{number}", toAccount)
-                .retrieve()
-                .bodyToMono(GetAccountDTO.class);
-
-        return Mono.zip(fromAccountMono, toAccountMono)
-                .flatMap(tuple -> {
-                    GetAccountDTO fromAcc = tuple.getT1();
-                    GetAccountDTO toAcc = tuple.getT2();
-                    boolean sameBank = fromAcc.getBankId().equals(toAcc.getBankId());
-                    // Aquí podrías consultar el saldo real de la cuenta origen si tienes ese endpoint
-                    return service.processTransfer(fromAccount, toAccount, amount, sameBank);
-                });
+    public Mono<ResponseEntity<TransferResponseDTO>> transfer(@RequestBody TransferRequestDTO payload) {
+        return service.validateAndProcessTransfer(payload);
     }
+
+
+
 
     @PostMapping("/deposit")
     @ResponseStatus(HttpStatus.CREATED)
