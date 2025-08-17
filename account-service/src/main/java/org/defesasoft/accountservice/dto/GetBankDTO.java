@@ -1,11 +1,11 @@
-package org.defesasoft.accountservice.model;
+package org.defesasoft.accountservice.dto;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("banks")
-public class Bank {
+public class GetBankDTO {
     @Id
     @Column("bank_id")
     private Long id;
@@ -14,10 +14,10 @@ public class Bank {
     @Column("country")
     private String country;
 
-    public Bank() {
+    public GetBankDTO() {
     }
 
-    public Bank(Long id, String name, String country) {
+    public GetBankDTO(Long id, String name, String country) {
         this.id = id;
         this.name = name;
         this.country = country;

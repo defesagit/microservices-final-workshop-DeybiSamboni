@@ -1,25 +1,29 @@
 package org.defesasoft.accountservice.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-
-
-@Table(name = "accounts")
+@Table("accounts")
 public class Account {
-
     @Id
+    @Column("account_id")
     private Long id;
+    @Column("account_number")
     private String accountNumber;
+    @Column("holder")
     private String holder;
-    private Integer bankId;
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column("bank_id")
+    private Long bankId;
+    @Column("created_at")
+    private LocalDateTime createdAt;
 
     public Account() {
     }
-    public Account(Long id, String accountNumber, String holder, Integer bankId, LocalDateTime createdAt) {
+
+    public Account(Long id, String accountNumber, String holder, Long bankId, LocalDateTime createdAt) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.holder = holder;
@@ -51,11 +55,11 @@ public class Account {
         this.holder = holder;
     }
 
-    public Integer getBankId() {
+    public Long getBankId() {
         return bankId;
     }
 
-    public void setBankId(Integer bankId) {
+    public void setBankId(Long bankId) {
         this.bankId = bankId;
     }
 

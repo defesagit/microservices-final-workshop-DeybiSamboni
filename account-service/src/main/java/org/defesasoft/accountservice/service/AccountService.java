@@ -8,8 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class AccountService {
@@ -22,14 +21,13 @@ public class AccountService {
     public Flux<Account> getAll() {
         return accountRepository.findAll();
     }
+
     public Mono<Account> getById(Long accountId) {
         return accountRepository
                 .findById(accountId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Account not found")));
     }
-    /*public Mono<Account> create(Account account) {
-        return accountRepository.save(account);
-    }*/
+
     public Mono<Account> create(Account account) {
         return accountRepository.existsByAccountNumber(account.getAccountNumber())
                 .flatMap(exists -> {
