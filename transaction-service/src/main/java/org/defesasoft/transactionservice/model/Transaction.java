@@ -1,5 +1,6 @@
 package org.defesasoft.transactionservice.model;
 
+import com.google.protobuf.Timestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 

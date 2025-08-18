@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "org.defesasoft.transactionservice.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "TransactionProto";
+
+message TransactionRequest {
+    int64 transactionId = 1;
+}
+
+message TransactionResponse {
+    int64 transactionId = 1;
+    int64 fromAccount=2;
+    int64 toAccount=3;
+    string type = 4;
+    double amount = 5;
+    google.protobuf.Timestamp timestamp = 6;
+}
+
+service TransactionService {
+    rpc getTransaction (TransactionRequest) returns (TransactionResponse);
+}
