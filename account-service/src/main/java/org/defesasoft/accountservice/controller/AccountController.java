@@ -1,5 +1,6 @@
 package org.defesasoft.accountservice.controller;
 
+import org.defesasoft.accountservice.dto.AccountWithTransactionsDTO;
 import org.defesasoft.accountservice.dto.UpdateBalanceDTO;
 import org.defesasoft.accountservice.model.Account;
 import org.defesasoft.accountservice.service.AccountService;
@@ -50,5 +51,9 @@ public class AccountController {
                 .map(updated -> ResponseEntity.ok(updated));
     }
 
+    @GetMapping("/accountable/{accountNumber}/history")
+    public Mono<AccountWithTransactionsDTO> getByAccountNumberWithHistory(@PathVariable Long accountNumber) {
+        return accountService.getByAccountNumberWithHistory(accountNumber);
+    }
 
 }

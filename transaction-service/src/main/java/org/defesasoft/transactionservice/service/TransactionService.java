@@ -180,4 +180,16 @@ public class TransactionService {
         }
         return repository.save(transaction);
     }
+
+    public Flux<Transaction> getTransactionsByFromAccount(Long fromAccount) {
+        return repository.findByFromAccount(fromAccount);
+    }
+
+    public Flux<Transaction> getTransactionsByToAccount(Long toAccount) {
+        return repository.findByToAccount(toAccount);
+    }
+
+    public Flux<Transaction> getTransactionsByAccount(Long accountNumber) {
+        return repository.findByFromAccountOrToAccount(accountNumber, accountNumber);
+    }
 }

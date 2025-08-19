@@ -1,6 +1,11 @@
 package org.defesasoft.accountservice.service;
 
+import org.defesasoft.accountservice.dto.AccountWithTransactionsDTO;
+import org.defesasoft.accountservice.dto.GetTransactionDTO;
 import org.defesasoft.accountservice.exception.AccountAlreadyExistsException;
+import org.defesasoft.accountservice.grpc.TransactionConsumer;
+import org.defesasoft.accountservice.grpc.TransactionResponse;
+
 import org.defesasoft.accountservice.model.Account;
 import org.defesasoft.accountservice.repository.IAccountRepository;
 import org.springframework.stereotype.Service;
@@ -15,10 +20,13 @@ import java.time.LocalDateTime;
 public class AccountService {
     private final IAccountRepository accountRepository;
     private final BankService bankService;
+    private final TransactionConsumer transactionConsumer;
+    private final String msgAccountNotFound = "Account not found";
 
-    public AccountService(IAccountRepository repository, BankService bankServicerepo) {
+    public AccountService(IAccountRepository repository, BankService bankServicerepo, TransactionConsumer transactionConsumer) {
         this.accountRepository = repository;
         this.bankService = bankServicerepo;
+        this.transactionConsumer = transactionConsumer;
     }
 
     public Flux<Account> getAll() {
@@ -28,13 +36,13 @@ public class AccountService {
     public Mono<Account> getById (Long accountId) {
         return accountRepository
                 .findById(accountId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")));
+                .switchIfEmpty(Mono.error(new RuntimeException(msgAccountNotFound)));
     }
 
     public Mono<Account> getByAccountNumber (Long accountNumber) {
         return accountRepository
                 .findByAccountNumber(accountNumber)
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")));
+                .switchIfEmpty(Mono.error(new RuntimeException(msgAccountNotFound)));
     }
 
     public Mono<Account> create(Account account) {
@@ -54,11 +62,24 @@ public class AccountService {
 
     public Mono<Account> updateBalanceByAccountNumber(Long accountNumber, BigDecimal newBalance) {
         return accountRepository.findByAccountNumber(accountNumber)
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
+                .switchIfEmpty(Mono.error(new RuntimeException(msgAccountNotFound)))
                 .flatMap(account -> {
                     account.setBalance(newBalance);
                     return accountRepository.save(account);
                 });
+    }
+
+    public Mono<AccountWithTransactionsDTO> getByAccountNumberWithHistory(Long accountNumber) {
+        return accountRepository
+                .findByAccountNumber(accountNumber)
+                .switchIfEmpty(Mono.error(new RuntimeException(msgAccountNotFound)))
+                .flatMap(account ->
+                        transactionConsumer.getTransactions(accountNumber)
+                                .map(transactions -> new AccountWithTransactionsDTO(
+                                        account,
+                                        transactions // aquí va la lista directamente
+                                ))
+                );
     }
 
 }

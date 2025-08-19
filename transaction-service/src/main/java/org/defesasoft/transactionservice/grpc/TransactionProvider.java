@@ -1,8 +1,5 @@
 package org.defesasoft.transactionservice.grpc;
 
-import org.defesasoft.transactionservice.grpc.TransactionRequest;
-import org.defesasoft.transactionservice.grpc.TransactionResponse;
-import org.defesasoft.transactionservice.grpc.TransactionServiceGrpc;
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
 import io.grpc.stub.StreamObserver;
@@ -19,10 +16,10 @@ public class TransactionProvider extends TransactionServiceGrpc.TransactionServi
         this.repository = repository;
     }
 
-    @Override
+    /*@Override
     public void getTransaction(TransactionRequest request, StreamObserver<TransactionResponse> responseObserver) {
-        repository.findById(request.getTransactionId())
-                .switchIfEmpty(Mono.error(new RuntimeException("Transaction not found")))
+        repository.findByToAccount(request.getToAccount())
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
                 .subscribe(transaction -> {
 
                     double amount = transaction.getAmount().doubleValue();
@@ -46,5 +43,37 @@ public class TransactionProvider extends TransactionServiceGrpc.TransactionServi
                     responseObserver.onCompleted();
                 }, responseObserver::onError).dispose();
 
+    }*/
+
+    @Override
+    public void getTransactionsByAccount(TransactionRequest request, StreamObserver<TransactionListResponse> responseObserver) {
+        repository.findAllByToAccount(request.getToAccount())
+                .collectList()
+                .map(transactions -> {
+                    TransactionListResponse.Builder listBuilder = TransactionListResponse.newBuilder();
+                    for (var transaction : transactions) {
+                        TransactionResponse response = TransactionResponse.newBuilder()
+                                .setTransactionId(transaction.getTransactionId())
+                                .setFromAccount(transaction.getFromAccount())
+                                .setToAccount(transaction.getToAccount())
+                                .setType(transaction.getType())
+                                .setAmount(transaction.getAmount().doubleValue())
+                                .setTimestamp(
+                                        com.google.protobuf.Timestamp.newBuilder()
+                                                .setSeconds(transaction.getTimestamp().toEpochSecond(java.time.ZoneOffset.UTC))
+                                                .setNanos(transaction.getTimestamp().getNano())
+                                                .build()
+                                )
+                                .build();
+                        listBuilder.addTransactions(response);
+                    }
+                    return listBuilder.build();
+                })
+                .subscribe(
+                        responseObserver::onNext,
+                        responseObserver::onError,
+                        responseObserver::onCompleted
+                );
     }
+
 }

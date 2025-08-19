@@ -60,4 +60,20 @@ public class TransactionController {
         BigDecimal amount = new BigDecimal(payload.get("amount").toString());
         return service.withdraw(fromAccount, amount);
     }
+
+    @GetMapping("/from/{accountNumber}")
+    public Flux<Transaction> getByFromAccount(@PathVariable Long accountNumber) {
+        return service.getTransactionsByFromAccount(accountNumber);
+    }
+
+    @GetMapping("/to/{accountNumber}")
+    public Flux<Transaction> getByToAccount(@PathVariable Long accountNumber) {
+        return service.getTransactionsByToAccount(accountNumber);
+    }
+
+    @GetMapping("/account/{accountNumber}")
+    public Flux<Transaction> getByAccount(@PathVariable Long accountNumber) {
+        return service.getTransactionsByAccount(accountNumber);
+    }
+
 }

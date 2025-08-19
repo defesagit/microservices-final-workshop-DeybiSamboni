@@ -7,7 +7,7 @@ option java_multiple_files = true;
 option java_outer_classname = "TransactionProto";
 
 message TransactionRequest {
-    int64 transactionId = 1;
+    int64 toAccount = 1;
 }
 
 message TransactionResponse {
@@ -19,6 +19,11 @@ message TransactionResponse {
     google.protobuf.Timestamp timestamp = 6;
 }
 
+message TransactionListResponse {
+    repeated TransactionResponse transactions = 1;
+}
+
 service TransactionService {
     rpc getTransaction (TransactionRequest) returns (TransactionResponse);
+    rpc getTransactionsByAccount (TransactionRequest) returns (TransactionListResponse);
 }
