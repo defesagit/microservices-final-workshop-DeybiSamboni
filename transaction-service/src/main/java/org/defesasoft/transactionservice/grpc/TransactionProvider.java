@@ -1,11 +1,8 @@
 package org.defesasoft.transactionservice.grpc;
 
-import com.google.protobuf.Timestamp;
-import java.time.ZoneOffset;
 import io.grpc.stub.StreamObserver;
 import org.defesasoft.transactionservice.repository.ITransactionRepository;
 import org.springframework.grpc.server.service.GrpcService;
-import reactor.core.publisher.Mono;
 
 
 @GrpcService
@@ -50,18 +47,22 @@ public class TransactionProvider extends TransactionServiceGrpc.TransactionServi
         repository.findAllByToAccount(request.getToAccount())
                 .collectList()
                 .map(transactions -> {
+                    if (transactions.isEmpty()) {
+                        throw new RuntimeException("No se encontró historial para la cuenta: " + request.getToAccount());
+                    }
                     TransactionListResponse.Builder listBuilder = TransactionListResponse.newBuilder();
                     for (var transaction : transactions) {
+                        long fromAccount = transaction.getFromAccount() != null ? transaction.getFromAccount() : 0L;
                         TransactionResponse response = TransactionResponse.newBuilder()
                                 .setTransactionId(transaction.getTransactionId())
-                                .setFromAccount(transaction.getFromAccount())
-                                .setToAccount(transaction.getToAccount())
-                                .setType(transaction.getType())
-                                .setAmount(transaction.getAmount().doubleValue())
+                                .setFromAccount(fromAccount)
+                                .setToAccount(transaction.getToAccount() != null ? transaction.getToAccount() : 0L)
+                                .setType(transaction.getType() != null ? transaction.getType() : "")
+                                .setAmount(transaction.getAmount() != null ? transaction.getAmount().doubleValue() : 0.0)
                                 .setTimestamp(
                                         com.google.protobuf.Timestamp.newBuilder()
-                                                .setSeconds(transaction.getTimestamp().toEpochSecond(java.time.ZoneOffset.UTC))
-                                                .setNanos(transaction.getTimestamp().getNano())
+                                                .setSeconds(transaction.getTimestamp() != null ? transaction.getTimestamp().toEpochSecond(java.time.ZoneOffset.UTC) : 0)
+                                                .setNanos(transaction.getTimestamp() != null ? transaction.getTimestamp().getNano() : 0)
                                                 .build()
                                 )
                                 .build();
@@ -71,7 +72,13 @@ public class TransactionProvider extends TransactionServiceGrpc.TransactionServi
                 })
                 .subscribe(
                         responseObserver::onNext,
-                        responseObserver::onError,
+                        error -> {
+                            responseObserver.onError(
+                                    io.grpc.Status.NOT_FOUND
+                                            .withDescription(error.getMessage())
+                                            .asRuntimeException()
+                            );
+                        },
                         responseObserver::onCompleted
                 );
     }

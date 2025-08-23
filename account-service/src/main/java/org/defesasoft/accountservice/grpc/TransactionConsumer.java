@@ -2,6 +2,7 @@ package org.defesasoft.accountservice.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import jakarta.annotation.PostConstruct;
 import org.defesasoft.accountservice.dto.GetTransactionDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,11 +18,26 @@ public class TransactionConsumer {
     @Value("${transaction.grpc.host}")
     private String grpcHost;
     @Value("${transaction.grpc.port}")
-    private Integer grpcPort;
-    private ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9091)
-            .usePlaintext()
-            .build();
-    private TransactionServiceGrpc.TransactionServiceBlockingStub stub = TransactionServiceGrpc.newBlockingStub(channel);
+    private int grpcPort;
+
+
+//    private ManagedChannel channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
+//            .usePlaintext()
+//            .build();
+
+    //private TransactionServiceGrpc.TransactionServiceBlockingStub stub = TransactionServiceGrpc.newBlockingStub(channel);
+
+    private ManagedChannel channel;
+    private TransactionServiceGrpc.TransactionServiceBlockingStub stub;
+
+    @PostConstruct
+    public void init() {
+        channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
+                .usePlaintext()
+                .build();
+        stub = TransactionServiceGrpc.newBlockingStub(channel);
+    }
+
 
     /*public Mono<GetTransactionDTO> getTransaction(Long toAccount) {
         try {
@@ -40,6 +56,7 @@ public class TransactionConsumer {
             return Mono.error(new RuntimeException("No se encontró transacción para la cuenta: " + toAccount + ". Error: " + e.getMessage()));
         }
     }*/
+
     public Mono<List<GetTransactionDTO>> getTransactions(Long toAccount) {
         try {
             TransactionRequest request = TransactionRequest.newBuilder().setToAccount(toAccount).build();
