@@ -43,7 +43,8 @@ public class TransactionProvider extends TransactionServiceGrpc.TransactionServi
     }*/
 
     @Override
-    public void getTransactionsByAccount(TransactionRequest request, StreamObserver<TransactionListResponse> responseObserver) {
+    public void getTransactionsByAccount(TransactionRequest request,
+                                         StreamObserver<TransactionListResponse> responseObserver) {
         repository.findAllByToAccount(request.getToAccount())
                 .collectList()
                 .map(transactions -> {

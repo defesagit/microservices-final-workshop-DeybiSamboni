@@ -1,6 +1,7 @@
 package org.defesasoft.transactionservice.service;
 
 import org.defesasoft.transactionservice.dto.GetAccountDTO;
+import org.defesasoft.transactionservice.dto.TransactionDTO;
 import org.defesasoft.transactionservice.dto.TransferRequestDTO;
 import org.defesasoft.transactionservice.dto.TransferResponseDTO;
 import org.defesasoft.transactionservice.model.Transaction;
@@ -11,36 +12,39 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
 public class TransactionService {
-    private final ITransactionRepository repository;
+    private final ITransactionRepository transactionRepository;
     private final AccountService accountService;
+    private final TransactionPublisher transactionPublisher;
 
-    public TransactionService(ITransactionRepository repository, AccountService accountService) {
-        this.repository = repository;
+    public TransactionService(ITransactionRepository transactionRepository, AccountService accountService, TransactionPublisher transactionPublisher) {
+        this.transactionRepository = transactionRepository;
         this.accountService = accountService;
+        this.transactionPublisher = transactionPublisher;
     }
 
     public Flux<Transaction> getAllTransactions() {
-        return repository.findAll();
+        return transactionRepository.findAll();
     }
 
     public Mono<Transaction> getTransactionById(Long transactionId) {
-        return repository.findById(transactionId);
+        return transactionRepository.findById(transactionId);
     }
 
     public Mono<Transaction> deposit(Long toAccount, BigDecimal amount) {
         Transaction deposit = new Transaction(null, null, toAccount, "DEPOSIT", amount, LocalDateTime.now());
-        return repository.save(deposit);
+        return transactionRepository.save(deposit);
     }
 
     public Mono<Transaction> withdraw(Long fromAccount, BigDecimal amount) {
         // Aquí deberías validar fondos suficientes antes de continuar
         Transaction withdrawal = new Transaction(null, fromAccount, null, "WITHDRAWAL", amount, LocalDateTime.now());
-        return repository.save(withdrawal);
+        return transactionRepository.save(withdrawal);
     }
 
     public Mono<Void> processTransfer(Long fromAccount, Long toAccount, BigDecimal amount, boolean sameBank) {
@@ -55,60 +59,6 @@ public class TransactionService {
                 }
             });
     }
-
-    /*public Mono<ResponseEntity<TransferResponseDTO>> validateAndProcessTransfer(TransferRequestDTO payload) {
-        Long fromAccountNumber = Long.valueOf(payload.getFromAccount());
-        Long toAccountNumber = Long.valueOf(payload.getToAccount());
-        BigDecimal amount = payload.getAmount();
-
-        Mono<GetAccountDTO> fromAccountMono = accountService.getAccount(fromAccountNumber);
-        Mono<GetAccountDTO> toAccountMono = accountService.getAccount(toAccountNumber);
-
-        return Mono.zip(fromAccountMono, toAccountMono)
-                .flatMap(tuple -> {
-                    GetAccountDTO fromAcc = tuple.getT1();
-                    GetAccountDTO toAcc = tuple.getT2();
-                    boolean sameBank = fromAcc.getBankId().equals(toAcc.getBankId());
-
-                    if (fromAcc.getBalance().compareTo(amount) < 0) {
-                        TransferResponseDTO errorResponse = new TransferResponseDTO(
-                                "FAILURE",
-                                "Insufficient funds",
-                                null
-                        );
-                        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse));
-                    }
-
-                    return processTransfer(payload.getFromAccount(), payload.getToAccount(), amount, sameBank)
-                            .then(Mono.defer(() -> {
-                                Transaction transaction = new Transaction();
-                                transaction.setFromAccount(payload.getFromAccount());
-                                transaction.setToAccount(payload.getToAccount());
-                                transaction.setAmount(amount);
-                                transaction.setType("TRANSFER");
-                                transaction.setTimestamp(LocalDateTime.now());
-                                return saveTransaction(transaction, sameBank);
-                            }))
-                            .map(saved -> {
-                                TransferResponseDTO response = new TransferResponseDTO(
-                                        "SUCCESS",
-                                        "Transfer completed successfully",
-                                        saved
-                                );
-                                return ResponseEntity.status(HttpStatus.CREATED).body(response);
-                            });
-                })
-                .onErrorResume(e ->
-                        Mono.fromSupplier(() -> {
-                            TransferResponseDTO errorResponse = new TransferResponseDTO(
-                                    "FAILURE",
-                                    "Transfer error: " + e.getMessage(),
-                                    null
-                            );
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-                        })
-                );
-    }*/
 
     public Mono<ResponseEntity<TransferResponseDTO>> validateAndProcessTransfer(TransferRequestDTO payload) {
         Long fromAccountNumber = payload.getFromAccount();
@@ -178,18 +128,27 @@ public class TransactionService {
             BigDecimal fee = new BigDecimal("5.00");
             transaction.setAmount(transaction.getAmount().subtract(fee));
         }
-        return repository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public Flux<Transaction> getTransactionsByFromAccount(Long fromAccount) {
-        return repository.findByFromAccount(fromAccount);
+        return transactionRepository.findByFromAccount(fromAccount);
     }
 
     public Flux<Transaction> getTransactionsByToAccount(Long toAccount) {
-        return repository.findByToAccount(toAccount);
+        return transactionRepository.findByToAccount(toAccount);
     }
 
     public Flux<Transaction> getTransactionsByAccount(Long accountNumber) {
-        return repository.findByFromAccountOrToAccount(accountNumber, accountNumber);
+        return transactionRepository.findByFromAccountOrToAccount(accountNumber, accountNumber);
     }
+
+    public Mono<Transaction> saveTransactionrabbit(Transaction transaction) {
+
+            BigDecimal fee = new BigDecimal("5.00");
+            var x = new Transaction(null, transaction.getFromAccount(), transaction.getToAccount(), transaction.getType(), transaction.getAmount().subtract(fee), LocalDateTime.now());
+            transactionPublisher.publishTransactionCreatedEvent(x);
+            return Mono.just(x);
+    }
+
 }

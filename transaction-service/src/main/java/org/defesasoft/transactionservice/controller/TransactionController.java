@@ -1,8 +1,10 @@
 package org.defesasoft.transactionservice.controller;
 
+import org.defesasoft.transactionservice.dto.TransactionDTO;
 import org.defesasoft.transactionservice.dto.TransferRequestDTO;
 import org.defesasoft.transactionservice.dto.TransferResponseDTO;
 import org.defesasoft.transactionservice.dto.DepositRequestDTO;
+import org.defesasoft.transactionservice.grpc.TransactionResponse;
 import org.defesasoft.transactionservice.model.Transaction;
 import org.defesasoft.transactionservice.service.TransactionService;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,10 @@ public class TransactionController {
 
     private final TransactionService service;
 
+
     public TransactionController(TransactionService service) {
         this.service = service;
+
     }
 
     @GetMapping
@@ -38,14 +42,6 @@ public class TransactionController {
     public Mono<ResponseEntity<TransferResponseDTO>> transfer(@RequestBody TransferRequestDTO payload) {
         return service.validateAndProcessTransfer(payload);
     }
-
-    /*@PostMapping("/deposit")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Transaction> deposit(@RequestBody Map<Long, Object> payload) {
-        Long toAccount = (Long) payload.get("toAccount");
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-        return service.deposit(toAccount, amount);
-    }*/
 
     @PostMapping("/deposit")
     @ResponseStatus(HttpStatus.CREATED)
@@ -74,6 +70,12 @@ public class TransactionController {
     @GetMapping("/account/{accountNumber}")
     public Flux<Transaction> getByAccount(@PathVariable Long accountNumber) {
         return service.getTransactionsByAccount(accountNumber);
+    }
+
+    @PostMapping("/{accountNumber}/purchase")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Transaction> purchase(@RequestBody Transaction payload) {
+        return service.saveTransactionrabbit(payload);
     }
 
 }
