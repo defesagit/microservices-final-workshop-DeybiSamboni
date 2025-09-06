@@ -1,5 +1,6 @@
 package org.defesasoft.apigateway.config;
 
+import org.defesasoft.apigateway.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -20,12 +21,20 @@ public class RouteConfig {
     @Value("${transactions-service.id}") private String transactionServiceId;
     @Value("${transactions-service.path}") private String transactionServicePath;
 
+    private final JwtAuthenticationFilter filter;
+
+    public RouteConfig (JwtAuthenticationFilter filter) {
+        this.filter = filter;
+    }
+
+
     @Bean
     public RouteLocator createRouteLocate(RouteLocatorBuilder builder){
         return builder.routes()
-                .route(bankServiceId, route -> route.path(bankServicePath).uri(bankServiceUrl))
-                .route(accountServiceId, route -> route.path(accountServicePath).uri(accountServiceUrl))
-                .route(transactionServiceId, route -> route.path(transactionServicePath).uri(transactionServiceUrl))
+                .route(bankServiceId, route -> route.path(bankServicePath).filters(gtf-> gtf.filter(filter)).uri(bankServiceUrl))
+                .route(accountServiceId, route -> route.path(accountServicePath).filters(gtf-> gtf.filter(filter)).uri(accountServiceUrl))
+                .route(transactionServiceId, route -> route.path(transactionServicePath).filters(gtf-> gtf.filter(filter)).uri(transactionServiceUrl))
+                .route("auth-service", route -> route.path("/api/auth/**").uri("http://localhost:8085"))
                 .build();
     }
 }
