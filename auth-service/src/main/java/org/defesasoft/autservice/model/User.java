@@ -8,17 +8,17 @@ public class User {
     @Id
     private Long id;
     private String username;
-    private String pasword;
+    private String password;
     private String role;
 
     public Long getId() {
         return id;
     }
 
-    public User(Long id, String username, String pasword, String role) {
+    public User(Long id, String username, String password, String role) {
         this.id = id;
         this.username = username;
-        this.pasword = pasword;
+        this.password = password;
         this.role = role;
     }
 
@@ -34,12 +34,12 @@ public class User {
         this.username = username;
     }
 
-    public String getPasword() {
-        return pasword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasword(String pasword) {
-        this.pasword = pasword;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getRole() {

@@ -10,18 +10,17 @@ import reactor.core.publisher.Mono;
 @Service
 public class UserService {
     private final IUserRepository repository;
-    private final PasswordEncoder enconder;
+    private final PasswordEncoder encoder;
 
     public UserService(IUserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
-        this.enconder = passwordEncoder;
+        this.encoder = passwordEncoder;
     }
 
-    public Mono<User> register(RegisterRequest request) {
+    public Mono<Object> register(RegisterRequest request) {
         // Encode the password before saving
         return repository.findByUsername(request.username())
-                .switchIfEmpty(repository.save(new User(null, request.username(), enconder.encode(request.password()), request.role())))
-                .flatMap(existing -> Mono.error(new RuntimeException("Username already exists")));
-
+                .flatMap(existing -> Mono.error(new RuntimeException("User already exists")))
+                .switchIfEmpty(repository.save(new User(null, request.username(), encoder.encode(request.password()), request.role())));
     }
 }

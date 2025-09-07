@@ -20,7 +20,7 @@ public class UserDetailService implements ReactiveUserDetailsService {
                 .map(user -> User
                         .builder()
                         .username(user.getUsername())
-                        .password(user.getPasword())
+                        .password(user.getPassword())
                         .roles(user.getRole())
                         .build()
                 );

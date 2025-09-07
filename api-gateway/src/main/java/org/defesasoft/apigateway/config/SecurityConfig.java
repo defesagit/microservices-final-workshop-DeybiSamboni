@@ -12,7 +12,7 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain spingSecurityFilterChain(ServerHttpSecurity http){
         http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchange-> exchange.pathMatchers("api/auth/**").permitAll().anyExchange().authenticated());
+                .authorizeExchange(exchange-> exchange.pathMatchers("api/v1/auth/**").permitAll().anyExchange().permitAll());
         return http.build();
     }
 }

@@ -18,7 +18,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .setIssuedAt(Date.from(Instant.now()))
-                .setExpiration(new Date(new Date().getTime() + 86400000)) // 1 hour expiration
+                .setExpiration(new Date(new Date().getTime() + 300000)) // 5 min expiration
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }

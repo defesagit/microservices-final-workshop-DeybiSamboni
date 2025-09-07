@@ -34,7 +34,7 @@ public class RouteConfig {
                 .route(bankServiceId, route -> route.path(bankServicePath).filters(gtf-> gtf.filter(filter)).uri(bankServiceUrl))
                 .route(accountServiceId, route -> route.path(accountServicePath).filters(gtf-> gtf.filter(filter)).uri(accountServiceUrl))
                 .route(transactionServiceId, route -> route.path(transactionServicePath).filters(gtf-> gtf.filter(filter)).uri(transactionServiceUrl))
-                .route("auth-service", route -> route.path("/api/auth/**").uri("http://localhost:8085"))
+                .route("auth-service", route -> route.path("/api/v1/auth/**").uri("http://localhost:8085"))
                 .build();
     }
 }

@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public Mono<ResponseEntity<User>> register(@RequestBody RegisterRequest request) {
+    public Mono<ResponseEntity<Object>> register(@RequestBody RegisterRequest request) {
         return userService.register(request)
                 .map(ResponseEntity::ok);
     }
